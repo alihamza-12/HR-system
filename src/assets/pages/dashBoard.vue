@@ -1,26 +1,24 @@
 <template>
-  <div id="app">
-    <nav-bar @toggle-sidebar="toggleSidebar" />
-    <side-bar :visible="sidebarVisible" />
-    <div class="d-flex">
-      <main class="flex-grow-1 p-3">
-        <!-- <button @click="logout" class="btn btn-theme mb-3">Logout</button> -->
-        <!-- <router-link to="/blogspage">Blogs Page</router-link><br />
-        <router-link to="/userspage">Users Page</router-link> -->
-      </main>
-    </div>
-  </div>
+  <Layout>
+    <template v-slot>
+      <div class="d-flex">
+        <main class="flex-grow-1 p-3">
+          <!-- <button @click="logout" class="btn btn-theme mb-3">Logout</button> -->
+          <!-- <router-link to="/blogspage">Blogs Page</router-link><br />
+          <router-link to="/userspage">Users Page</router-link> -->
+        </main>
+      </div>
+    </template>
+  </Layout>
 </template>
 
 <script>
-import sideBar from '@/components/sideBar.vue';
-import navBar from '@/components/navbar.vue';
+import Layout from '@/components/Layout.vue';
 
 export default {
   name: 'dashBoardPage',
   components: {
-    sideBar,
-    navBar
+    Layout
   },
   data() {
     return {
@@ -46,7 +44,6 @@ export default {
   }
 }
 </script>
-
 
 <style scoped>
 #app {

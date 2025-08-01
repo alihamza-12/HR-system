@@ -30,7 +30,7 @@ import navBar from '@/components/navbar.vue';
 import sideBar from '@/components/sideBar.vue';
 
 export default {
-  name: "UsersPage",
+  name: "BlogsPage",
   components: {
     navBar,
     sideBar

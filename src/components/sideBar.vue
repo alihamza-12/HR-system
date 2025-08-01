@@ -7,13 +7,13 @@
       <div class="position-sticky pt-3">
         <ul class="nav flex-column">
           <li class="nav-item">
-            <router-link class="nav-link" to="/userspage">
+            <router-link class="nav-link" to="/users">
               Users Managment
             </router-link>
           </li>
           <hr />
           <li class="nav-item">
-            <router-link class="nav-link" to="/blogspage">
+            <router-link class="nav-link" to="/blogs">
               Blogs Details
             </router-link>
           </li>
