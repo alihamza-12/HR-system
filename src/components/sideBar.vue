@@ -23,6 +23,36 @@
               Create Blog
             </router-link>
           </li>
+          <hr>
+          <li>
+            <router-link class="nav-link" to="/employee">
+              Employee
+            </router-link>
+          </li>
+          <hr>
+          <li>
+            <router-link class="nav-link" to="/attendance">
+              Attendance
+            </router-link>
+          </li>
+          <hr>
+          <li>
+            <router-link class="nav-link" to="/payroll">
+              Pay Roll
+            </router-link>
+          </li>
+          <hr>
+          <li>
+            <router-link class="nav-link" to="/performance">
+              Performance
+            </router-link>
+          </li>
+          <hr>
+          <li>
+            <router-link class="nav-link" to="/announcement">
+              Announcement
+            </router-link>
+          </li>
           <hr />
           <li class="nav-item">
             <button @click="logout" class="btn btn-theme mb-3">Logout</button>

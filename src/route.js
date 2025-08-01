@@ -5,7 +5,12 @@ import LoginPage from "./assets/pages/login.vue";
 import DashBoardPage from "./assets/pages/dashBoard.vue";
 import BlogsPage from "./assets/pages/blogs.vue";
 import UsersPage from "./assets/pages/users.vue";
-import createBlog from "./assets/pages/createblog.vue";
+import CreateBlog from "./assets/pages/createblog.vue";
+import Employee from "./assets/pages/employee.vue";
+import Attendance from "./assets/pages/attendendane.vue";
+import Payroll from "./assets/pages/payroll.vue";
+import PerformancePage from "./assets/pages/performance-page.vue";
+import Announcement from "./assets/pages/announcement.vue";
 
 Vue.use(VueRouter);
 
@@ -27,16 +32,36 @@ const routes = [
     component: DashBoardPage,
   },
   {
-    path: "/blogspage",
+    path: "/blogs",
     component: BlogsPage,
   },
   {
-    path: "/userspage",
+    path: "/users",
     component: UsersPage,
   },
   {
     path: "/createblog",
-    component: createBlog,
+    component: CreateBlog,
+  },
+   {
+    path: "/employee",
+    component: Employee,
+  },
+  {
+    path: "/attendance",
+    component: Attendance,
+  },
+   {
+    path: "/payroll",
+    component: Payroll,
+  },
+  {
+    path: "/performance",
+    component: PerformancePage,
+  },
+  {
+    path: "/announcement",
+    component: Announcement,
   },
 ];
 

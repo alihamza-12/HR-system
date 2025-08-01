@@ -24,7 +24,7 @@ export default {
   },
   data() {
     return {
-      sidebarVisible: false
+      sidebarVisible: true
     };
   },
   created() {
