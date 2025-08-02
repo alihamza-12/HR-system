@@ -7,6 +7,9 @@ import BlogsPage from "./assets/pages/blogs.vue";
 import UsersPage from "./assets/pages/users.vue";
 import CreateBlog from "./assets/pages/createblog.vue";
 import Employee from "./assets/pages/employee.vue";
+import EmployeeList from "./assets/pages/employee/EmployeeList.vue";
+import EmployeeForm from "./assets/pages/employee/EmployeeForm.vue";
+import EmployeeProfile from "./assets/pages/employee/EmployeeProfile.vue";
 import Attendance from "./assets/pages/attendendane.vue";
 import Payroll from "./assets/pages/payroll.vue";
 import PerformancePage from "./assets/pages/performance-page.vue";
@@ -46,6 +49,18 @@ const routes = [
    {
     path: "/employee",
     component: Employee,
+  },
+  {
+    path: "/employee/list",
+    component: EmployeeList,
+  },
+  {
+    path: "/employee/form",
+    component: EmployeeForm,
+  },
+  {
+    path: "/employee/profile",
+    component: EmployeeProfile,
   },
   {
     path: "/attendance",
