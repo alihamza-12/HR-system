@@ -4,7 +4,8 @@
       <h1>Employee Management</h1>
       <div class="employee-content">
         <!-- Content will be added here -->
-        <p>Employee management features coming soon</p>
+        <!-- <p>Employee management features coming soon</p> -->
+         <p>that ali part of page</p>
       </div>
     </template>
   </Layout>
