@@ -63,6 +63,11 @@ const routes = [
     component: EmployeeProfile,
   },
   {
+    path: "/employee/profile/:id",
+    component: EmployeeProfile,
+    props: true
+  },
+  {
     path: "/attendance",
     component: Attendance,
   },

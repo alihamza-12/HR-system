@@ -70,6 +70,7 @@
 <script>
 import Layout from '@/components/Layout.vue';
 import EmployeeModal from '@/components/EmployeeModal.vue';
+import { mapState, mapActions } from 'vuex';
 
 export default {
   name: 'EmployeeList',
@@ -81,30 +82,20 @@ export default {
     return {
       isModalVisible: false,
       isEditMode: false,
-      currentEmployee: {},
-      employees: [
-        {
-          id: 1,
-          firstName: 'John',
-          lastName: 'Doe',
-          position: 'Software Engineer',
-          department: 'IT',
-          email: 'john.doe@example.com',
-          status: 'active'
-        },
-        {
-          id: 2,
-          firstName: 'Jane',
-          lastName: 'Smith',
-          position: 'HR Manager',
-          department: 'Human Resources',
-          email: 'jane.smith@example.com',
-          status: 'active'
-        }
-      ]
+      currentEmployee: {}
+    }
+  },
+  computed: {
+    ...mapState('employee', ['employees'])
+  },
+  created() {
+    // Only load employees if the store is empty
+    if (this.employees.length === 0) {
+      this.loadEmployees();
     }
   },
   methods: {
+    ...mapActions('employee', ['loadEmployees', 'addEmployee', 'updateEmployee', 'removeEmployee']),
     openAddModal() {
       this.isEditMode = false;
       this.currentEmployee = {};
@@ -122,18 +113,10 @@ export default {
     handleSaveSuccess(employeeData) {
       if (this.isEditMode) {
         // Update existing employee
-        const index = this.employees.findIndex(emp => emp.id === employeeData.id);
-        if (index !== -1) {
-          this.employees.splice(index, 1, { ...employeeData, status: 'active' });
-        }
+        this.updateEmployee({ ...employeeData, status: 'active' });
       } else {
         // Add new employee
-        const newEmployee = {
-          ...employeeData,
-          id: this.employees.length + 1,
-          status: 'active'
-        };
-        this.employees.push(newEmployee);
+        this.addEmployee(employeeData);
       }
     },
     viewEmployee(employee) {
@@ -141,16 +124,10 @@ export default {
       this.$router.push(`/employee/profile/${employee.id}`);
     },
     softDeleteEmployee(employee) {
-      const index = this.employees.findIndex(emp => emp.id === employee.id);
-      if (index !== -1) {
-        this.employees[index].status = 'deleted';
-      }
+      this.updateEmployee({ ...employee, status: 'deleted' });
     },
     restoreEmployee(employee) {
-      const index = this.employees.findIndex(emp => emp.id === employee.id);
-      if (index !== -1) {
-        this.employees[index].status = 'active';
-      }
+      this.updateEmployee({ ...employee, status: 'active' });
     }
   }
 }

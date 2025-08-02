@@ -162,6 +162,7 @@
 
 <script>
 import Layout from '@/components/Layout.vue';
+import { mapActions } from 'vuex';
 
 export default {
   name: 'EmployeeForm',
@@ -190,6 +191,7 @@ export default {
     }
   },
   methods: {
+    ...mapActions('employee', ['addEmployee']),
     handleFileUpload(event, fileType) {
       const file = event.target.files[0];
       if (file) {
@@ -266,9 +268,27 @@ export default {
         // For now, we'll simulate the API call
         await this.simulateApiCall(formData);
         
+        // Add employee to store
+        const employeeData = {
+          firstName: this.formData.firstName,
+          lastName: this.formData.lastName,
+          email: this.formData.email,
+          phone: this.formData.phone,
+          position: this.formData.position,
+          department: this.formData.department,
+          startDate: this.formData.startDate,
+          salary: this.formData.salary,
+          address: this.formData.address
+        };
+        
+        await this.addEmployee(employeeData);
+        
         // Show success message
         alert('Employee saved successfully!');
         this.resetForm();
+        
+        // Navigate back to employee list
+        this.$router.push('/employee/list');
       } catch (error) {
         console.error('Error saving employee:', error);
         alert('Error saving employee. Please try again.');

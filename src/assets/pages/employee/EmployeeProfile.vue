@@ -8,7 +8,6 @@
             <button v-if="!isEditing" class="action-button edit" @click="startEditing">Edit Profile</button>
             <button v-else class="action-button cancel" @click="cancelEditing">Cancel</button>
             <button class="action-button save" v-if="isEditing" @click="saveProfile">Save Changes</button>
-            <button class="action-button download">Download Profile</button>
           </div>
         </div>
         <div class="employee-profile-content">
@@ -144,52 +143,68 @@
 
 <script>
 import Layout from '@/components/Layout.vue';
+import { mapGetters, mapActions } from 'vuex';
 
 export default {
   name: 'EmployeeProfile',
   components: {
     Layout
   },
+  props: {
+    id: {
+      type: String,
+      default: null
+    }
+  },
   data() {
     return {
       isEditing: false,
-      originalData: {},
-      employeeData: {
-        id: 'EMP001',
-        firstName: 'John',
-        lastName: 'Doe',
-        position: 'Senior Software Engineer',
-        department: 'IT Department',
-        email: 'john.doe@example.com',
-        phone: '(123) 456-7890',
-        dob: '1990-01-01',
-        address: '123 Main Street, City, State 12345',
-        emergencyContact: 'Jane Doe - (987) 654-3210',
-        startDate: '2020-03-15',
-        salary: 85000,
-        manager: 'Robert Johnson',
+      originalData: {}
+    }
+  },
+  computed: {
+    ...mapGetters('employee', ['getEmployeeById']),
+    employeeData() {
+      const employee = this.getEmployeeById(this.id);
+      return employee || {
+        id: this.id || 'N/A',
+        firstName: 'Unknown',
+        lastName: 'Employee',
+        position: 'N/A',
+        department: 'N/A',
+        email: 'N/A',
+        phone: 'N/A',
+        dob: 'N/A',
+        address: 'N/A',
+        emergencyContact: 'N/A',
+        startDate: 'N/A',
+        salary: 0,
+        manager: 'N/A',
+        status: 'N/A',
         performance: {
-          rating: 4.5,
-          projects: 24,
-          attendance: 98
+          rating: 0,
+          projects: 0,
+          attendance: 0
         },
-        resumePreview: 'john_doe_resume.pdf',
-        contractPreview: 'john_doe_contract.pdf'
-      }
+        resumePreview: '',
+        contractPreview: ''
+      };
     }
   },
   methods: {
+    ...mapActions('employee', ['updateEmployee']),
     startEditing() {
       this.originalData = JSON.parse(JSON.stringify(this.employeeData));
       this.isEditing = true;
     },
     cancelEditing() {
-      this.employeeData = JSON.parse(JSON.stringify(this.originalData));
+      // Reset the employee data in the store to the original data
+      this.updateEmployee(this.originalData);
       this.isEditing = false;
     },
     saveProfile() {
-      // In a real app, you would send the updated data to your API
-      console.log('Saving employee data:', this.employeeData);
+      // Update employee in store
+      this.updateEmployee(this.employeeData);
       this.isEditing = false;
       // Show success message
       alert('Profile updated successfully!');
@@ -199,7 +214,9 @@ export default {
       if (file) {
         // In a real app, you would upload the file to your server
         // For now, we'll just update the preview
-        this.employeeData[`${fileType}Preview`] = file.name;
+        const updatedEmployee = { ...this.employeeData };
+        updatedEmployee[`${fileType}Preview`] = file.name;
+        this.updateEmployee(updatedEmployee);
         console.log(`File selected for ${fileType}:`, file.name);
       }
     }
@@ -444,11 +461,6 @@ export default {
 
 .action-button.edit, .action-button.save {
   background-color: #007bff;
-  color: white;
-}
-
-.action-button.download {
-  background-color: #28a745;
   color: white;
 }
 

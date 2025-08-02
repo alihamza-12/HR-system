@@ -166,6 +166,8 @@
 </template>
 
 <script>
+import { mapActions } from 'vuex';
+
 export default {
   name: 'EmployeeModal',
   props: {
@@ -215,6 +217,7 @@ export default {
     }
   },
   methods: {
+    ...mapActions('employee', ['addEmployee', 'updateEmployee']),
     closeModal() {
       this.$emit('close');
     },
@@ -291,8 +294,13 @@ export default {
         // For now, we'll simulate the API call
         await this.simulateApiCall(formData);
         
-        // Emit success event
-        this.$emit('save-success', this.employeeData);
+        // Add or update employee in store
+        if (this.isEditMode) {
+          this.updateEmployee(this.employeeData);
+        } else {
+          this.addEmployee(this.employeeData);
+        }
+        
         this.closeModal();
         this.resetForm();
       } catch (error) {
