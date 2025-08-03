@@ -13,11 +13,19 @@ import EmployeeProfile from "./assets/pages/employee/EmployeeProfile.vue";
 import Attendance from "./assets/pages/attendendane.vue";
 import Payroll from "./assets/pages/payroll.vue";
 import PerformancePage from "./assets/pages/performance-page.vue";
-import Announcement from "./assets/pages/announcement.vue";
+
+// route.js
+import AnnouncementList from './assets/pages/AnnouncementList.vue';
+import CreateAnnouncement from './assets/pages/CreateAnnouncement.vue';
+import Announcement from './assets/pages/Announcement.vue';
+
+
 
 Vue.use(VueRouter);
 
 const routes = [
+    { path: '/announcements', component: AnnouncementList },
+  { path: '/create-announcement', component: CreateAnnouncement },
   {
     path: "/",
     redirect: "/signup",
@@ -83,6 +91,10 @@ const routes = [
     path: "/announcement",
     component: Announcement,
   },
+  {
+  path: '/attendance',
+  component: () => import('./assets/pages/attendendane.vue')
+},
 ];
 
 const router = new VueRouter({
