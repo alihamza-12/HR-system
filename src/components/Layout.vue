@@ -2,7 +2,9 @@
   <div class="page-container">
     <nav-bar />
     <div class="content-wrapper">
-      <side-bar />
+      <div class="sidebar-fixed">
+        <side-bar />
+      </div>
       <div class="main-content">
         <slot />
       </div>
@@ -36,10 +38,23 @@ export default {
   align-items: flex-start;
 }
 
+/* NEW: Make sidebar fixed width and stick */
+.sidebar-fixed {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  min-width: 250px;
+  max-width: 250px;
+  background-color: #f8f9fa;
+  border-right: 1px solid #dee2e6;
+  z-index: 10;
+  overflow-y: auto;
+}
+
+/* Adjust main content width accordingly */
 .main-content {
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-start;
+  flex: 1;
   padding: 20px;
+  overflow-x: hidden;
 }
 </style>
