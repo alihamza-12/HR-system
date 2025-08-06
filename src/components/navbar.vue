@@ -4,18 +4,18 @@
       <button class="navbar-toggler d-lg-none" type="button" aria-label="Toggle sidebar" @click="$emit('toggle-sidebar')">
         <span class="navbar-toggler-icon"></span>
       </button>
-      <!-- <router-link class="navbar-brand" to="/dashboard">Back to Dashboard</router-link> -->
-      <!-- <router-link class="navbar-brand" :to="{ path: '/dashboard', params: { email: authUser.email } }">Back to Dashboard</router-link> -->
-      <router-link class="navbar-brand" :to="{ path: '/dashboard', query: { email: authUser.email } }">Back to Dashboard</router-link>
+      
+      <router-link class="navbar-brand" to="/dashboard">Back to Dashboard</router-link>
 
-      <span v-if="authUser" class="navbar-text user-name-display">
-        {{ authUser.name || authUser.email }}
+      <span v-if="user" class="navbar-text user-name-display">
+        {{ user.Name  }}
       </span>
     </div>
   </nav>
 </template>
 
 <script>
+import { mapState } from 'vuex';
 export default {
   name: 'navBar',
   data() {
@@ -23,10 +23,28 @@ export default {
       authUser: null
     };
   },
+  computed:{
+    ...mapState({
+      user:state=>state.auth.user
+    })
+  },
   created() {
-    const user = localStorage.getItem('authUser');
-    if (user) {
-      this.authUser = JSON.parse(user);
+    this.loadUser();
+    // Listen for storage changes to update user when login/logout happens
+    window.addEventListener('storage', this.loadUser);
+  },
+  beforeUnmount() {
+    window.removeEventListener('storage', this.loadUser);
+  },
+  methods: {
+    loadUser() {
+      try {
+        const user = localStorage.getItem('authUser');
+        this.authUser = user ? JSON.parse(user) : null;
+      } catch (error) {
+        console.error('Error loading user from localStorage:', error);
+        this.authUser = null;
+      }
     }
   }
 }

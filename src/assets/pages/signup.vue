@@ -36,6 +36,14 @@
                                         <label for="con-pass">Confirm Password</label>
                                         <input v-model="conPass" type="password" class="form-control" id="con-pass" placeholder="Enter you Confirm Password">
                                     </div> -->
+                                    <div class="form-group mb-4">
+                                      <label for="role">Role</label>
+                                      <select v-model="inRole" class="form-control" id="role">
+                                        <option value="employee">Employee</option>
+                                        <option value="manager">Manager</option>
+                                        <option value="admin">Admin</option>
+                                      </select>
+                                    </div>
                                     <button type="submit" class="btn btn-theme">Sign Up</button>
                                 </form>
                             </div>
@@ -66,24 +74,26 @@
 </template>
 
 <script>
+import API from "@/services/api";
+
 export default {
   name: 'signUpPage',
-  components: {},
   data() {
     return {
       inName: "",
       inPhone: "",
       inEmail: "",
-      inPassword: ""
+      inPassword: "",
+      inRole: "admin"
     };
   },
   methods: {
-    onSubmit() {
+    async onSubmit() {
       if (!this.inName || !this.inPhone || !this.inEmail || !this.inPassword) {
         alert('Please fill in all fields.');
         return;
       }
-       if (!this.inEmail.endsWith('@gmail.com')) {
+      if (!this.inEmail.endsWith('@gmail.com')) {
         alert('Only Gmail addresses are allowed.');
         return;
       }
@@ -96,20 +106,33 @@ export default {
         name: this.inName,
         phone: this.inPhone,
         email: this.inEmail,
-        password: this.inPassword
+        password: this.inPassword,
+        role: this.inRole
       };
 
-      let users = JSON.parse(localStorage.getItem('users')) || [];
+      try {
+        const response = await API.post('/register', userData);
 
-      const userExists = users.some(user => user.email === userData.email);
-
-      if (!userExists) {
-        users.push(userData);
-        localStorage.setItem('users', JSON.stringify(users));
-        alert('User data saved successfully!');
-        this.$router.push('/login')
-      } else {
-        alert('User with this email already exists!');
+        if (response.status === 201 || response.status === 200) {
+          alert("Registration successful!");
+          this.$router.push("/login");
+        }
+      } catch (error) {
+        console.error("Signup Error:", error);
+        console.error("Error response:", error.response?.data);
+        console.error("Error status:", error.response?.status);
+        console.error("Error details:", error.response?.data?.errors || error.response?.data?.message);
+        
+        // Show detailed error messages
+        const errorMessage = error.response?.data?.message || "Registration failed.";
+        const errors = error.response?.data?.errors;
+        
+        if (errors) {
+          const errorDetails = Object.values(errors).flat().join('\n');
+          alert(`${errorMessage}\n\nDetails:\n${errorDetails}`);
+        } else {
+          alert(errorMessage);
+        }
       }
     }
   }

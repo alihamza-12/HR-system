@@ -1,333 +1,143 @@
 <template>
-  <Layout>
-    <template v-slot>
-      <div class="employee-form-container">
-        <h1>Employee Form</h1>
-        <div class="employee-form-content">
-          <form @submit.prevent="handleSubmit" class="employee-form">
-            <div class="form-row">
-              <div class="form-group">
-                <label for="firstName">First Name *</label>
-                <input 
-                  type="text" 
-                  id="firstName" 
-                  v-model="formData.firstName" 
-                  placeholder="Enter first name"
-                  :class="{ 'error': errors.firstName }"
-                >
-                <span v-if="errors.firstName" class="error-message">{{ errors.firstName }}</span>
-              </div>
-              <div class="form-group">
-                <label for="lastName">Last Name *</label>
-                <input 
-                  type="text" 
-                  id="lastName" 
-                  v-model="formData.lastName" 
-                  placeholder="Enter last name"
-                  :class="{ 'error': errors.lastName }"
-                >
-                <span v-if="errors.lastName" class="error-message">{{ errors.lastName }}</span>
-              </div>
-            </div>
-            
-            <div class="form-row">
-              <div class="form-group">
-                <label for="email">Email *</label>
-                <input 
-                  type="email" 
-                  id="email" 
-                  v-model="formData.email" 
-                  placeholder="Enter email address"
-                  :class="{ 'error': errors.email }"
-                >
-                <span v-if="errors.email" class="error-message">{{ errors.email }}</span>
-              </div>
-              <div class="form-group">
-                <label for="phone">Phone</label>
-                <input 
-                  type="tel" 
-                  id="phone" 
-                  v-model="formData.phone" 
-                  placeholder="Enter phone number"
-                >
-              </div>
-            </div>
-            
-            <div class="form-row">
-              <div class="form-group">
-                <label for="position">Position *</label>
-                <select 
-                  id="position" 
-                  v-model="formData.position"
-                  :class="{ 'error': errors.position }"
-                >
-                  <option value="">Select position</option>
-                  <option value="developer">Developer</option>
-                  <option value="designer">Designer</option>
-                  <option value="manager">Manager</option>
-                  <option value="hr">HR</option>
-                </select>
-                <span v-if="errors.position" class="error-message">{{ errors.position }}</span>
-              </div>
-              <div class="form-group">
-                <label for="department">Department *</label>
-                <select 
-                  id="department" 
-                  v-model="formData.department"
-                  :class="{ 'error': errors.department }"
-                >
-                  <option value="">Select department</option>
-                  <option value="it">IT</option>
-                  <option value="hr">Human Resources</option>
-                  <option value="finance">Finance</option>
-                  <option value="marketing">Marketing</option>
-                </select>
-                <span v-if="errors.department" class="error-message">{{ errors.department }}</span>
-              </div>
-            </div>
-            
-            <div class="form-row">
-              <div class="form-group">
-                <label for="startDate">Start Date *</label>
-                <input 
-                  type="date" 
-                  id="startDate" 
-                  v-model="formData.startDate"
-                  :class="{ 'error': errors.startDate }"
-                >
-                <span v-if="errors.startDate" class="error-message">{{ errors.startDate }}</span>
-              </div>
-              <div class="form-group">
-                <label for="salary">Salary *</label>
-                <input 
-                  type="number" 
-                  id="salary" 
-                  v-model="formData.salary" 
-                  placeholder="Enter salary"
-                  :class="{ 'error': errors.salary }"
-                >
-                <span v-if="errors.salary" class="error-message">{{ errors.salary }}</span>
-              </div>
-            </div>
-            
-            <div class="form-group full-width">
-              <label for="address">Address</label>
-              <textarea 
-                id="address" 
-                v-model="formData.address" 
-                placeholder="Enter full address" 
-                rows="3"
-              ></textarea>
-            </div>
-            
-            <div class="form-row">
-              <div class="form-group">
-                <label for="resume">Resume</label>
-                <input 
-                  type="file" 
-                  id="resume" 
-                  @change="handleFileUpload($event, 'resume')"
-                  accept=".pdf,.doc,.docx"
-                >
-                <div v-if="formData.resumePreview" class="file-preview">
-                  <p>Resume: {{ formData.resumePreview }}</p>
-                </div>
-              </div>
-              <div class="form-group">
-                <label for="contract">Contract</label>
-                <input 
-                  type="file" 
-                  id="contract" 
-                  @change="handleFileUpload($event, 'contract')"
-                  accept=".pdf,.doc,.docx"
-                >
-                <div v-if="formData.contractPreview" class="file-preview">
-                  <p>Contract: {{ formData.contractPreview }}</p>
-                </div>
-              </div>
-            </div>
-            
-            <div class="form-actions">
-              <button type="submit" class="submit-button" :disabled="isSubmitting">
-                {{ isSubmitting ? 'Saving...' : 'Save Employee' }}
-              </button>
-              <button type="button" class="reset-button" @click="resetForm">Reset</button>
-            </div>
-          </form>
+  <div class="modal-overlay" v-if="visible">
+    <div class="modal">
+      <h3>{{ isEdit ? 'Edit' : 'Add' }} Employee</h3>
+      <form @submit.prevent="handleSubmit">
+        <div class="form-group">
+          <label>Name:</label>
+          <input v-model="form.name" required />
         </div>
-      </div>
-    </template>
-  </Layout>
+        <div class="form-group">
+          <label>Email:</label>
+          <input v-model="form.email" type="email" required />
+        </div>
+        <div class="form-group">
+          <label>Phone:</label>
+          <input v-model="form.phone" required />
+        </div>
+        <div class="form-group">
+          <label>Role:</label>
+          <input v-model="form.role" />
+        </div>
+        <div class="form-group">
+          <label>Skills:</label>
+          <input v-model="form.skills" />
+        </div>
+        <div class="form-group">
+          <label>Status:</label>
+          <select v-model="form.is_active">
+            <option :value="true">Active</option>
+            <option :value="false">Inactive</option>
+          </select>
+        </div>
+
+        <button type="submit" class="btn btn-primary">
+          {{ isEdit ? 'Update' : 'Add' }} Employee
+        </button>
+        <button type="button" class="btn btn-secondary" @click="closeForm">Cancel</button>
+      </form>
+    </div>
+  </div>
 </template>
 
 <script>
-import Layout from '@/components/Layout.vue';
-import { mapActions } from 'vuex';
+import { mapActions } from 'vuex'
 
 export default {
-  name: 'EmployeeForm',
-  components: {
-    Layout
+  props: {
+    employee: Object,
+    visible: Boolean
   },
   data() {
     return {
-      isSubmitting: false,
-      formData: {
-        firstName: '',
-        lastName: '',
+      form: {
+        id: null,
+        name: '',
         email: '',
         phone: '',
-        position: '',
-        department: '',
-        startDate: '',
-        salary: '',
-        address: '',
-        resume: null,
-        contract: null,
-        resumePreview: '',
-        contractPreview: ''
-      },
-      errors: {}
+        role: '',
+        skills: '',
+        is_active: true
+      }
+    }
+  },
+  computed: {
+    isEdit() {
+      return !!this.form.id
+    }
+  },
+  watch: {
+    employee: {
+      immediate: true,
+      handler(newVal) {
+        if (newVal) {
+          this.form = { ...newVal }
+        } else {
+          this.resetForm()
+        }
+      }
     }
   },
   methods: {
-    ...mapActions('employee', ['addEmployee']),
-    handleFileUpload(event, fileType) {
-      const file = event.target.files[0];
-      if (file) {
-        // Store the file for upload
-        this.formData[fileType] = file;
-        // Create a preview name
-        this.formData[`${fileType}Preview`] = file.name;
-      }
-    },
-    validateForm() {
-      this.errors = {};
-      
-      if (!this.formData.firstName) {
-        this.errors.firstName = 'First name is required';
-      }
-      
-      if (!this.formData.lastName) {
-        this.errors.lastName = 'Last name is required';
-      }
-      
-      if (!this.formData.email) {
-        this.errors.email = 'Email is required';
-      } else if (!/\S+@\S+\.\S+/.test(this.formData.email)) {
-        this.errors.email = 'Email is invalid';
-      }
-      
-      if (!this.formData.position) {
-        this.errors.position = 'Position is required';
-      }
-      
-      if (!this.formData.department) {
-        this.errors.department = 'Department is required';
-      }
-      
-      if (!this.formData.startDate) {
-        this.errors.startDate = 'Start date is required';
-      }
-      
-      if (!this.formData.salary) {
-        this.errors.salary = 'Salary is required';
-      }
-      
-      return Object.keys(this.errors).length === 0;
-    },
+    ...mapActions('employee', ['updateEmployee']),
     async handleSubmit() {
-      if (!this.validateForm()) {
-        return;
-      }
-      
-      this.isSubmitting = true;
-      
       try {
-        // Prepare form data for file upload
-        const formData = new FormData();
-        formData.append('firstName', this.formData.firstName);
-        formData.append('lastName', this.formData.lastName);
-        formData.append('email', this.formData.email);
-        formData.append('phone', this.formData.phone);
-        formData.append('position', this.formData.position);
-        formData.append('department', this.formData.department);
-        formData.append('startDate', this.formData.startDate);
-        formData.append('salary', this.formData.salary);
-        formData.append('address', this.formData.address);
-        
-        if (this.formData.resume) {
-          formData.append('resume', this.formData.resume);
-        }
-        
-        if (this.formData.contract) {
-          formData.append('contract', this.formData.contract);
-        }
-        
-        // In a real app, you would send this to your API
-        // For now, we'll simulate the API call
-        await this.simulateApiCall(formData);
-        
-        // Add employee to store
-        const employeeData = {
-          firstName: this.formData.firstName,
-          lastName: this.formData.lastName,
-          email: this.formData.email,
-          phone: this.formData.phone,
-          position: this.formData.position,
-          department: this.formData.department,
-          startDate: this.formData.startDate,
-          salary: this.formData.salary,
-          address: this.formData.address
-        };
-        
-        await this.addEmployee(employeeData);
-        
-        // Show success message
-        alert('Employee saved successfully!');
-        this.resetForm();
-        
-        // Navigate back to employee list
-        this.$router.push('/employee/list');
-      } catch (error) {
-        console.error('Error saving employee:', error);
-        alert('Error saving employee. Please try again.');
-      } finally {
-        this.isSubmitting = false;
+        await this.updateEmployee(this.form)
+        this.$emit('success') // Notify parent to reload
+        this.closeForm()
+      } catch (err) {
+        console.error('Update failed:', err)
       }
     },
-    simulateApiCall() {
-      // Simulate API call delay
-      return new Promise(resolve => setTimeout(resolve, 1000));
+    closeForm() {
+      this.$emit('close')
+      this.resetForm()
     },
     resetForm() {
-      this.formData = {
-        firstName: '',
-        lastName: '',
+      this.form = {
+        id: null,
+        name: '',
         email: '',
         phone: '',
-        position: '',
-        department: '',
-        startDate: '',
-        salary: '',
-        address: '',
-        resume: null,
-        contract: null,
-        resumePreview: '',
-        contractPreview: ''
-      };
-      this.errors = {};
+        role: '',
+        skills: '',
+        is_active: true
+      }
     }
   }
 }
 </script>
 
 <style scoped>
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.4);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.modal {
+  background: white;
+  padding: 20px;
+  border-radius: 5px;
+  width: 400px;
+}
+.form-group {
+  margin-bottom: 15px;
+}
+</style>
+<style scoped>
 .employee-form-container {
   width: 100%;
   padding: 20px;
 }
-
+.form-group {
+  margin-bottom: 15px;
+}
 .employee-form-content {
   margin-top: 20px;
 }

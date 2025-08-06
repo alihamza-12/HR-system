@@ -26,19 +26,19 @@ export default {
     };
   },
   created() {
-    const authUser = JSON.parse(localStorage.getItem('authUser'));
-    //for route gard
-    const emailFromUrl = this.$route.params.email || this.$route.query.email;
-    if (!authUser || !authUser.email || authUser.email !== emailFromUrl) {
-      this.$router.push('/login');
-    }
+    // const authUser = JSON.parse(localStorage.getItem('authUser'));
+    // //for route gard
+    // const emailFromUrl = this.$route.params.email || this.$route.query.email;
+    // if (!authUser || !authUser.email || authUser.email !== emailFromUrl) {
+    //   this.$router.push('/login');
+    // }
   },
   methods: {
     toggleSidebar() {
       this.sidebarVisible = !this.sidebarVisible;
     },
     logout() {
-      localStorage.removeItem('authUser');
+      localStorage.removeItem('token');
       this.$router.push('/login');
     }
   }

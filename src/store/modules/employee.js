@@ -1,111 +1,199 @@
-const state = {
-  employees: []
-}
+// store/modules/employee.js
 
-const getters = {
-  allEmployees: (state) => state.employees,
-  getEmployeeById: (state) => (id) => {
-    return state.employees.find(employee => employee.id === parseInt(id))
-  }
-}
+import axios from "@/services/api";
+
+const state = {
+  employees: [],
+  deletedEmployees: [],
+};
 
 const mutations = {
   SET_EMPLOYEES(state, employees) {
-    state.employees = employees
+    state.employees = employees;
   },
-  ADD_EMPLOYEE(state, employee) {
-    state.employees.push(employee)
+  SET_DELETED_EMPLOYEES(state, deletedEmployees) {
+    state.deletedEmployees = deletedEmployees;
   },
-  UPDATE_EMPLOYEE(state, updatedEmployee) {
-    const index = state.employees.findIndex(emp => emp.id === updatedEmployee.id)
-    if (index !== -1) {
-      state.employees.splice(index, 1, updatedEmployee)
-    }
-  },
-  REMOVE_EMPLOYEE(state, employeeId) {
-    state.employees = state.employees.filter(emp => emp.id !== employeeId)
-  }
-}
+};
 
 const actions = {
-  loadEmployees({ commit }) {
-    // In a real app, this would be an API call
-    // For now, we'll use the sample data
-    const sampleEmployees = [
-      {
-        id: 1,
-        firstName: 'John',
-        lastName: 'Doe',
-        position: 'Software Engineer',
-        department: 'IT',
-        email: 'john.doe@example.com',
-        phone: '(123) 456-7890',
-        dob: '1990-01-01',
-        address: '123 Main Street, City, State 12345',
-        emergencyContact: 'Jane Doe - (987) 654-3210',
-        startDate: '2020-03-15',
-        salary: 85000,
-        manager: 'Robert Johnson',
-        status: 'active',
-        performance: {
-          rating: 4.5,
-          projects: 24,
-          attendance: 98
-        }
-      },
-      {
-        id: 2,
-        firstName: 'Jane',
-        lastName: 'Smith',
-        position: 'HR Manager',
-        department: 'Human Resources',
-        email: 'jane.smith@example.com',
-        phone: '(987) 654-3210',
-        dob: '1985-05-15',
-        address: '456 Oak Avenue, Town, State 67890',
-        emergencyContact: 'John Smith - (123) 456-7890',
-        startDate: '2018-07-22',
-        salary: 95000,
-        manager: 'Michael Brown',
-        status: 'active',
-        performance: {
-          rating: 4.8,
-          projects: 32,
-          attendance: 99
-        }
+  async loadEmployees({ commit }) {
+    try {
+      const response = await axios.get("/list-users");
+
+      let employeesData = [];
+      if (response.data?.data?.data) {
+        employeesData = response.data.data.data;
+      } else if (Array.isArray(response.data)) {
+        employeesData = response.data;
+      } else if (Array.isArray(response.data?.data)) {
+        employeesData = response.data.data;
+      } else if (response.data?.employees) {
+        employeesData = response.data.employees;
       }
-    ]
-    commit('SET_EMPLOYEES', sampleEmployees)
-  },
-  addEmployee({ commit }, employee) {
-    // In a real app, this would be an API call
-    const newEmployee = {
-      ...employee,
-      id: Date.now(), // Simple ID generation for now
-      status: 'active',
-      performance: {
-        rating: 0,
-        projects: 0,
-        attendance: 0
-      }
+
+      const activeEmployees = employeesData
+        .filter((emp) => emp.status !== "deleted")
+        .map((emp) => ({
+          id: emp.id,
+          name:
+            emp.name ||
+            `${emp.first_name || ""} ${emp.last_name || ""}`.trim() ||
+            "Unknown",
+          phone: emp.phone || emp.phone_number || "",
+          email: emp.email || "",
+          role: emp.role || emp.position || "",
+          skills: emp.skills || "",
+          is_active: emp.status === "active",
+        }));
+
+      const deletedEmployees = employeesData
+        .filter((emp) => emp.status === "deleted")
+        .map((emp) => ({
+          id: emp.id,
+          name:
+            emp.name ||
+            `${emp.first_name || ""} ${emp.last_name || ""}`.trim() ||
+            "Unknown",
+          phone: emp.phone || emp.phone_number || "",
+          email: emp.email || "",
+          role: emp.role || emp.position || "",
+          skills: emp.skills || "",
+          is_active: false,
+        }));
+
+      commit("SET_EMPLOYEES", activeEmployees);
+      commit("SET_DELETED_EMPLOYEES", deletedEmployees);
+    } catch (error) {
+      console.error("Failed to load employees:", error);
+      commit("SET_EMPLOYEES", []);
+      commit("SET_DELETED_EMPLOYEES", []);
     }
-    commit('ADD_EMPLOYEE', newEmployee)
-    return newEmployee
   },
-  updateEmployee({ commit }, employee) {
-    // In a real app, this would be an API call
-    commit('UPDATE_EMPLOYEE', employee)
+
+  async updateEmployee({ dispatch }, { id, data }) {
+    try {
+      // Ensure data is FormData and contains all required fields
+      const formData = data instanceof FormData ? data : new FormData();
+
+      // Only append fields if they exist and aren't already in FormData
+      if (!(data instanceof FormData)) {
+        Object.keys(data).forEach((key) => {
+          if (data[key] !== null && data[key] !== undefined) {
+            formData.append(key, data[key]);
+          }
+        });
+      }
+
+      // Ensure required fields are present
+      const requiredFields = ["name", "email", "phone", "role", "is_active"];
+      requiredFields.forEach((field) => {
+        if (!formData.has(field)) {
+          formData.append(field, field === "is_active" ? "1" : "");
+        }
+      });
+
+      console.log(
+        "Sending update request with fields:",
+        Array.from(formData.keys())
+      );
+
+      const response = await axios.post(`/update-user/${id}`, formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
+
+      console.log("Update successful:", response.data);
+      await dispatch("loadEmployees");
+      return response.data;
+    } catch (error) {
+      console.error("Failed to update employee:", error);
+
+      // Log detailed error information
+      if (error.response) {
+        console.error("Error response:", error.response.data);
+        console.error("Error status:", error.response.status);
+        console.error("Error headers:", error.response.headers);
+      }
+
+      throw error;
+    }
   },
-  removeEmployee({ commit }, employeeId) {
-    // In a real app, this would be an API call
-    commit('REMOVE_EMPLOYEE', employeeId)
-  }
-}
+
+  async addEmployee({ dispatch }, employeeData) {
+    try {
+      // Ensure data is FormData and contains all required fields
+      const formData =
+        employeeData instanceof FormData ? employeeData : new FormData();
+
+      // Only append fields if they exist and aren't already in FormData
+      if (!(employeeData instanceof FormData)) {
+        Object.keys(employeeData).forEach((key) => {
+          if (employeeData[key] !== null && employeeData[key] !== undefined) {
+            formData.append(key, employeeData[key]);
+          }
+        });
+      }
+
+      // Ensure required fields are present
+      const requiredFields = ["name", "email", "phone", "role", "is_active"];
+      requiredFields.forEach((field) => {
+        if (!formData.has(field)) {
+          formData.append(field, field === "is_active" ? "1" : "");
+        }
+      });
+
+      console.log(
+        "Sending add request with fields:",
+        Array.from(formData.keys())
+      );
+
+      const response = await axios.post("/add-user", formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
+
+      console.log("Add successful:", response.data);
+      await dispatch("loadEmployees");
+      return response.data;
+    } catch (error) {
+      console.error("Failed to add employee:", error);
+
+      // Log detailed error information
+      if (error.response) {
+        console.error("Error response:", error.response.data);
+        console.error("Error status:", error.response.status);
+        console.error("Error headers:", error.response.headers);
+      }
+
+      throw error;
+    }
+  },
+
+  async deleteEmployee({ dispatch }, employeeId) {
+    try {
+      await axios.post(`/delete-user/${employeeId}`);
+      await dispatch("loadEmployees");
+    } catch (error) {
+      console.error("Failed to delete employee:", error);
+      throw error;
+    }
+  },
+};
+
+const getters = {
+  employees: (state) => state.employees,
+  deletedEmployees: (state) => state.deletedEmployees,
+  getEmployeeById: (state) => (id) =>
+    state.employees.find((emp) => emp.id == id),
+};
 
 export default {
   namespaced: true,
   state,
-  getters,
   mutations,
-  actions
-}
+  actions,
+  getters,
+};

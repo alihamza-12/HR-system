@@ -1,228 +1,69 @@
 <template>
   <Layout>
-    <template v-slot>
-      <div class="employee-profile-container">
-        <div class="header-section">
-          <h1>Employee Profile</h1>
-          <div class="profile-actions">
-            <button v-if="!isEditing" class="action-button edit" @click="startEditing">Edit Profile</button>
-            <button v-else class="action-button cancel" @click="cancelEditing">Cancel</button>
-            <button class="action-button save" v-if="isEditing" @click="saveProfile">Save Changes</button>
-          </div>
+    <div class="container mt-4" v-if="employeeData">
+      <div class="card">
+        <div class="card-header d-flex justify-content-between align-items-center">
+          <h5 class="mb-0">{{ employeeData.name }}'s Profile</h5>
+          <button @click="goBack" class="btn btn-sm btn-secondary">Back to List</button>
         </div>
-        <div class="employee-profile-content">
-          <div class="profile-header">
-            <div class="profile-image">
-              <img src="@/assets/logo.png" alt="Employee Photo">
-            </div>
-            <div class="profile-info">
-              <h2 v-if="!isEditing">{{ employeeData.firstName }} {{ employeeData.lastName }}</h2>
-              <div v-else class="edit-name">
-                <input v-model="employeeData.firstName" placeholder="First Name" class="name-input">
-                <input v-model="employeeData.lastName" placeholder="Last Name" class="name-input">
-              </div>
-              <p v-if="!isEditing" class="position">{{ employeeData.position }}</p>
-              <select v-else v-model="employeeData.position" class="position-select">
-                <option value="Software Engineer">Software Engineer</option>
-                <option value="HR Manager">HR Manager</option>
-                <option value="Designer">Designer</option>
-                <option value="Manager">Manager</option>
-              </select>
-              <p v-if="!isEditing" class="department">{{ employeeData.department }}</p>
-              <select v-else v-model="employeeData.department" class="department-select">
-                <option value="IT">IT</option>
-                <option value="Human Resources">Human Resources</option>
-                <option value="Finance">Finance</option>
-                <option value="Marketing">Marketing</option>
-              </select>
-              <div class="contact-info">
-                <p v-if="!isEditing"><strong>Email:</strong> {{ employeeData.email }}</p>
-                <div v-else class="edit-field">
-                  <label>Email:</label>
-                  <input v-model="employeeData.email" type="email" class="contact-input">
-                </div>
-                <p v-if="!isEditing"><strong>Phone:</strong> {{ employeeData.phone }}</p>
-                <div v-else class="edit-field">
-                  <label>Phone:</label>
-                  <input v-model="employeeData.phone" type="tel" class="contact-input">
-                </div>
-              </div>
-            </div>
+        <div class="card-body">
+          <p><strong>ID:</strong> {{ employeeData.id }}</p>
+          <p><strong>Email:</strong> {{ employeeData.email }}</p>
+          <p><strong>Phone:</strong> {{ employeeData.phone }}</p>
+          <p><strong>Role:</strong> {{ employeeData.role }}</p>
+          <p><strong>Skills:</strong> {{ employeeData.skills || 'N/A' }}</p>
+          <p><strong>Status:</strong> {{ employeeData.is_active ? 'Active' : 'Inactive' }}</p>
+
+          <hr />
+
+          <div v-if="employeeData.resumePreview">
+            <h6>Resume:</h6>
+            <a :href="employeeData.resumePreview" target="_blank">View Resume</a>
           </div>
-          
-          <div class="profile-details">
-            <div class="details-section">
-              <h3>Personal Information</h3>
-              <div class="details-grid">
-                <div class="detail-item">
-                  <span class="label">Date of Birth:</span>
-                  <span v-if="!isEditing" class="value">{{ employeeData.dob }}</span>
-                  <input v-else v-model="employeeData.dob" type="date" class="edit-input">
-                </div>
-                <div class="detail-item">
-                  <span class="label">Address:</span>
-                  <span v-if="!isEditing" class="value">{{ employeeData.address }}</span>
-                  <textarea v-else v-model="employeeData.address" class="edit-textarea"></textarea>
-                </div>
-                <div class="detail-item">
-                  <span class="label">Emergency Contact:</span>
-                  <span v-if="!isEditing" class="value">{{ employeeData.emergencyContact }}</span>
-                  <input v-else v-model="employeeData.emergencyContact" class="edit-input">
-                </div>
-              </div>
-            </div>
-            
-            <div class="details-section">
-              <h3>Employment Information</h3>
-              <div class="details-grid">
-                <div class="detail-item">
-                  <span class="label">Employee ID:</span>
-                  <span class="value">{{ employeeData.id }}</span>
-                </div>
-                <div class="detail-item">
-                  <span class="label">Start Date:</span>
-                  <span v-if="!isEditing" class="value">{{ employeeData.startDate }}</span>
-                  <input v-else v-model="employeeData.startDate" type="date" class="edit-input">
-                </div>
-                <div class="detail-item">
-                  <span class="label">Salary:</span>
-                  <span v-if="!isEditing" class="value">${{ employeeData.salary }}</span>
-                  <input v-else v-model="employeeData.salary" type="number" class="edit-input">
-                </div>
-                <div class="detail-item">
-                  <span class="label">Manager:</span>
-                  <span v-if="!isEditing" class="value">{{ employeeData.manager }}</span>
-                  <input v-else v-model="employeeData.manager" class="edit-input">
-                </div>
-              </div>
-            </div>
-            
-            <div class="details-section">
-              <h3>Performance</h3>
-              <div class="performance-metrics">
-                <div class="metric">
-                  <span class="metric-label">Overall Rating:</span>
-                  <span class="metric-value">{{ employeeData.performance.rating }}/5</span>
-                </div>
-                <div class="metric">
-                  <span class="metric-label">Projects Completed:</span>
-                  <span class="metric-value">{{ employeeData.performance.projects }}</span>
-                </div>
-                <div class="metric">
-                  <span class="metric-label">Attendance:</span>
-                  <span class="metric-value">{{ employeeData.performance.attendance }}%</span>
-                </div>
-              </div>
-            </div>
-            
-            <div class="details-section" v-if="isEditing">
-              <h3>Documents</h3>
-              <div class="document-upload">
-                <div class="upload-field">
-                  <label for="resume">Resume:</label>
-                  <input type="file" id="resume" @change="handleFileUpload($event, 'resume')">
-                  <div v-if="employeeData.resumePreview" class="file-preview">
-                    <p>Current: {{ employeeData.resumePreview }}</p>
-                  </div>
-                </div>
-                <div class="upload-field">
-                  <label for="contract">Contract:</label>
-                  <input type="file" id="contract" @change="handleFileUpload($event, 'contract')">
-                  <div v-if="employeeData.contractPreview" class="file-preview">
-                    <p>Current: {{ employeeData.contractPreview }}</p>
-                  </div>
-                </div>
-              </div>
-            </div>
+
+          <div v-if="employeeData.contractPreview">
+            <h6>Contract:</h6>
+            <a :href="employeeData.contractPreview" target="_blank">View Contract</a>
           </div>
         </div>
       </div>
-    </template>
+    </div>
   </Layout>
 </template>
 
 <script>
 import Layout from '@/components/Layout.vue';
-import { mapGetters, mapActions } from 'vuex';
+import { mapGetters } from 'vuex';
 
 export default {
   name: 'EmployeeProfile',
   components: {
     Layout
   },
-  props: {
-    id: {
-      type: String,
-      default: null
-    }
-  },
-  data() {
-    return {
-      isEditing: false,
-      originalData: {}
-    }
-  },
   computed: {
     ...mapGetters('employee', ['getEmployeeById']),
     employeeData() {
-      const employee = this.getEmployeeById(this.id);
-      return employee || {
-        id: this.id || 'N/A',
-        firstName: 'Unknown',
-        lastName: 'Employee',
-        position: 'N/A',
-        department: 'N/A',
-        email: 'N/A',
-        phone: 'N/A',
-        dob: 'N/A',
-        address: 'N/A',
-        emergencyContact: 'N/A',
-        startDate: 'N/A',
-        salary: 0,
-        manager: 'N/A',
-        status: 'N/A',
-        performance: {
-          rating: 0,
-          projects: 0,
-          attendance: 0
-        },
-        resumePreview: '',
-        contractPreview: ''
-      };
+      const id = this.$route.params.id;
+      const employee = this.getEmployeeById(id);
+      return employee || null;
     }
   },
   methods: {
-    ...mapActions('employee', ['updateEmployee']),
-    startEditing() {
-      this.originalData = JSON.parse(JSON.stringify(this.employeeData));
-      this.isEditing = true;
-    },
-    cancelEditing() {
-      // Reset the employee data in the store to the original data
-      this.updateEmployee(this.originalData);
-      this.isEditing = false;
-    },
-    saveProfile() {
-      // Update employee in store
-      this.updateEmployee(this.employeeData);
-      this.isEditing = false;
-      // Show success message
-      alert('Profile updated successfully!');
-    },
-    handleFileUpload(event, fileType) {
-      const file = event.target.files[0];
-      if (file) {
-        // In a real app, you would upload the file to your server
-        // For now, we'll just update the preview
-        const updatedEmployee = { ...this.employeeData };
-        updatedEmployee[`${fileType}Preview`] = file.name;
-        this.updateEmployee(updatedEmployee);
-        console.log(`File selected for ${fileType}:`, file.name);
-      }
+    goBack() {
+      this.$router.push('/employee/list' ); 
     }
   }
-}
+};
 </script>
+
+<style scoped>
+.card {
+  max-width: 700px;
+  margin: auto;
+}
+</style>
+
+
 
 <style scoped>
 .employee-profile-container {
