@@ -9,11 +9,11 @@
           </div>
 
           <div class="button-container">
-            <router-link to="/payroll/form" class="nav-button">
+            <!-- <router-link to="/payroll/form" class="nav-button">
               <div class="button-icon">📝</div>
               <div class="button-text">Add Payroll</div>
               <div class="button-description">Add new payroll entries</div>
-            </router-link>
+            </router-link> -->
             <router-link to="/payroll/list" class="nav-button">
               <div class="button-icon">📋</div>
               <div class="button-text">Payroll List</div>

@@ -93,6 +93,8 @@ export default {
 </script>
 
 <style>
+@import url('@/assets/styles/buttons.css');
+
 #app {
   font-family: Avenir, Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;

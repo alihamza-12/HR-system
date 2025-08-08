@@ -22,6 +22,7 @@
 import Layout from '@/components/Layout.vue'; 
 import CreateAnnouncement from '@/assets/pages/CreateAnnouncement.vue'; 
 import AnnouncementList from '@/assets/pages/AnnouncementList.vue';
+import { mapState, mapActions } from 'vuex';
 
 export default {
   name: "AnnouncementHere",
@@ -33,25 +34,29 @@ export default {
   data() {
     return {
       showCreate: false,
-      announcements: [
-        {
-          title: "Welcome",
-          message: "We welcome all new employees!",
-          date: "2025-08-01",
-        },
-        {
-          title: "Holiday Notice",
-          message: "Office will be closed on Independence Day.",
-          date: "2025-08-14",
-        },
-      ],
     };
   },
+  computed: {
+    ...mapState('announcement', ['announcements', 'loading', 'error']),
+  },
   methods: {
-    addAnnouncement(newAnnouncement) {
-      this.announcements.unshift(newAnnouncement);
-      this.showCreate = false;
+    ...mapActions('announcement', ['fetchAnnouncements', 'createAnnouncement']),
+    
+    async loadAnnouncements() {
+      await this.fetchAnnouncements();
     },
+    
+    async addAnnouncement(newAnnouncement) {
+      try {
+        await this.createAnnouncement(newAnnouncement);
+        this.showCreate = false;
+      } catch (error) {
+        console.error('Failed to create announcement:', error);
+      }
+    },
+  },
+  async mounted() {
+    await this.loadAnnouncements();
   },
 };
 </script>

@@ -1,4 +1,5 @@
 <template>
+  <Layout>
   <div class="container-fluid p-4 animate__animated animate__fadeIn">
     <div class="card-gradient p-4 mx-auto" style="max-width: 800px;">
       <div class="d-flex justify-content-between align-items-center mb-4">
@@ -188,7 +189,7 @@
     </div>
 
     <!-- Task Modal -->
-    <div class="modal fade" id="taskModal" tabindex="-1" aria-labelledby="taskModalLabel" aria-hidden="true" v-if="showTaskModal">
+    <div class="modal fade" id="taskModal" tabindex="-1" aria-labelledby="taskModalLabel" aria-hidden="true">
       <div class="modal-dialog">
         <div class="modal-content">
           <div class="modal-header bg-gradient-primary text-white">
@@ -218,15 +219,16 @@
     <!-- Toast Notification -->
    
   </div>
+</Layout>
 </template>
 
 <script>
-
 import { Modal } from 'bootstrap';
-
+import Layout from '@/components/Layout.vue';
 
 export default {
   name: "AppReviewForm",
+  components: { Layout },
   data() {
     return {
       employees: [

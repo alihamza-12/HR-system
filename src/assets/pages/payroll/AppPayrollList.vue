@@ -1,290 +1,314 @@
 <template>
-  <div class="container-fluid p-4">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-      <h2 class="h2 text-primary mb-0">Payroll Management</h2>
-      <div class="d-flex gap-2">
-        <button 
-          @click="exportToExcel" 
-          class="btn btn-outline-secondary"
-        >
-          <i class="bi bi-file-earmark-excel me-2"></i> Export
-        </button>
-        <button 
-          @click="addPayroll" 
-          class="btn btn-success"
-        >
-          <i class="bi bi-plus-circle me-2"></i> Add Payroll
-        </button>
-      </div>
-    </div>
+  <Layout>
+    <template #default>
+      <div class="container-fluid p-4">
+        <!-- Header & Actions -->
+        <div class="d-flex justify-content-between align-items-center mb-4">
+          <h2 class="h2 text-primary mb-0">Payroll Management</h2>
+          <div class="d-flex gap-2">
+            <button @click="exportToExcel" class="btn btn-outline-secondary">
+              <i class="bi bi-file-earmark-excel me-2"></i> Export
+            </button>
+            <button @click="addPayroll" class="btn btn-success">
+              <i class="bi bi-plus-circle me-2"></i> Add Payroll
+            </button>
+          </div>
+        </div>
 
-    <!-- Filters Card -->
-    <div class="card p-4 mb-4 filter-card">
-      <div class="row g-3 align-items-end">
-        <div class="col-md-4">
-          <label class="form-label">Employee</label>
-          <input 
-            v-model="searchQuery" 
-            type="text" 
-            class="form-control" 
-            placeholder="Search by employee name"
-          >
+        <!-- Filters Card -->
+        <div class="card p-4 mb-4 filter-card">
+          <div class="row g-3 align-items-end">
+            <div class="col-md-4">
+              <label class="form-label">User ID</label>
+              <input 
+                v-model="searchQuery" 
+                type="text" 
+                class="form-control" 
+                placeholder="Search by User ID"
+              >
+            </div>
+            <div class="col-md-3">
+              <label class="form-label">Month</label>
+              <select v-model="monthFilter" class="form-select">
+                <option value="all">All Months</option>
+                <option v-for="(month, index) in months" :key="index" :value="index + 1">
+                  {{ month }}
+                </option>
+              </select>
+            </div>
+            <div class="col-md-3">
+              <label class="form-label">Year</label>
+              <select v-model="yearFilter" class="form-select">
+                <option value="all">All Years</option>
+                <option v-for="year in years" :key="year" :value="year">
+                  {{ year }}
+                </option>
+              </select>
+            </div>
+            <div class="col-md-2">
+              <button 
+                @click="resetFilters" 
+                class="btn btn-outline-secondary w-100"
+              >
+                Reset
+              </button>
+            </div>
+          </div>
         </div>
-        <div class="col-md-3">
-          <label class="form-label">Pay Period</label>
-          <select v-model="periodFilter" class="form-select">
-            <option value="all">All Periods</option>
-            <option value="Monthly">Monthly</option>
-            <option value="Bi-Weekly">Bi-Weekly</option>
-            <option value="Weekly">Weekly</option>
-          </select>
-        </div>
-        <div class="col-md-3">
-          <label class="form-label">Month</label>
-          <select v-model="monthFilter" class="form-select">
-            <option value="all">All Months</option>
-            <option v-for="(month, index) in months" :key="index" :value="index + 1">
-              {{ month }}
-            </option>
-          </select>
-        </div>
-        <div class="col-md-2">
-          <button 
-            @click="resetFilters" 
-            class="btn btn-outline-secondary w-100"
-          >
-            Reset
-          </button>
-        </div>
-      </div>
-    </div>
 
-    <!-- Statistics Cards -->
-    <div class="row mb-4">
-      <div class="col-md-3">
-        <div class="card stat-card stat-card-1 h-100">
-          <div class="card-body">
-            <div class="d-flex justify-content-between">
-              <div>
-                <h6 class="text-muted">Total Payrolls</h6>
-                <h4 class="mb-0">{{ stats.totalPayrolls }}</h4>
-              </div>
-              <div class="stat-icon">
-                <i class="bi bi-cash-stack"></i>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-      <div class="col-md-3">
-        <div class="card stat-card stat-card-2 h-100">
-          <div class="card-body">
-            <div class="d-flex justify-content-between">
-              <div>
-                <h6 class="text-muted">Total Paid</h6>
-                <h4 class="mb-0">${{ stats.totalAmount.toLocaleString() }}</h4>
-              </div>
-              <div class="stat-icon">
-                <i class="bi bi-currency-dollar"></i>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-      <div class="col-md-3">
-        <div class="card stat-card stat-card-3 h-100">
-          <div class="card-body">
-            <div class="d-flex justify-content-between">
-              <div>
-                <h6 class="text-muted">Avg. Salary</h6>
-                <h4 class="mb-0">${{ stats.avgSalary.toLocaleString() }}</h4>
-              </div>
-              <div class="stat-icon">
-                <i class="bi bi-graph-up"></i>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-      <div class="col-md-3">
-        <div class="card stat-card stat-card-4 h-100">
-          <div class="card-body">
-            <div class="d-flex justify-content-between">
-              <div>
-                <h6 class="text-muted">This Month</h6>
-                <h4 class="mb-0">${{ stats.thisMonth.toLocaleString() }}</h4>
-              </div>
-              <div class="stat-icon">
-                <i class="bi bi-calendar-month"></i>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Payroll Table -->
-    <div class="card p-4">
-      <div class="table-responsive">
-        <table class="table table-hover">
-          <thead class="table-primary">
-            <tr>
-              <th>Employee</th>
-              <th>Period</th>
-              <th>Basic</th>
-              <th>Bonus</th>
-              <th>Deductions</th>
-              <th>Net Pay</th>
-              <th>Date</th>
-              <th>Status</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr v-for="payroll in filteredPayrolls" :key="payroll.id">
-              <td>
-                <div class="d-flex align-items-center">
-                  <div class="avatar me-2">
-                    {{ getInitials(payroll.name) }}
-                  </div>
+        <!-- Statistics Cards -->
+        <div class="row mb-4" v-if="!loading">
+          <div class="col-md-3">
+            <div class="card stat-card stat-card-1 h-100">
+              <div class="card-body">
+                <div class="d-flex justify-content-between">
                   <div>
-                    <div class="fw-bold">{{ payroll.name }}</div>
-                    <small class="text-muted">{{ payroll.department }}</small>
+                    <h6 class="text-muted">Total Payrolls</h6>
+                    <h4 class="mb-0">{{ stats.totalPayrolls }}</h4>
+                  </div>
+                  <div class="stat-icon">
+                    <i class="bi bi-cash-stack"></i>
                   </div>
                 </div>
-              </td>
-              <td>{{ payroll.period }}</td>
-              <td>${{ payroll.basic.toLocaleString() }}</td>
-              <td>${{ payroll.bonus.toLocaleString() }}</td>
-              <td class="text-danger">-${{ (payroll.deduction + payroll.tax).toLocaleString() }}</td>
-              <td class="fw-bold">${{ calculateNetPay(payroll).toLocaleString() }}</td>
-              <td>{{ formatDate(payroll.paymentDate) }}</td>
-              <td>
-                <span class="badge" :class="payroll.status === 'Paid' ? 'bg-success' : 'bg-warning'">
-                  {{ payroll.status }}
-                </span>
-              </td>
-              <td>
-                <div class="d-flex gap-2">
-                  <button 
-                    @click="viewPayslip(payroll)" 
-                    class="btn btn-sm btn-outline-primary"
-                    title="View Payslip"
-                  >
-                    <i class="bi bi-eye"></i>
-                  </button>
-                  <button 
-                    @click="editPayroll(payroll)" 
-                    class="btn btn-sm btn-primary"
-                    title="Edit"
-                  >
-                    <i class="bi bi-pencil"></i>
-                  </button>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-3">
+            <div class="card stat-card stat-card-2 h-100">
+              <div class="card-body">
+                <div class="d-flex justify-content-between">
+                  <div>
+                    <h6 class="text-muted">Total Paid</h6>
+                    <h4 class="mb-0">${{ stats.totalAmount.toLocaleString() }}</h4>
+                  </div>
+                  <div class="stat-icon">
+                    <i class="bi bi-currency-dollar"></i>
+                  </div>
                 </div>
-              </td>
-            </tr>
-            <tr v-if="filteredPayrolls.length === 0">
-              <td colspan="9" class="text-center py-4 text-muted">
-                <i class="bi bi-cash-coin fs-4"></i>
-                <p class="mt-2 mb-0">No payroll records found</p>
-              </td>
-            </tr>
-          </tbody>
-        </table>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-3">
+            <div class="card stat-card stat-card-3 h-100">
+              <div class="card-body">
+                <div class="d-flex justify-content-between">
+                  <div>
+                    <h6 class="text-muted">Avg. Salary</h6>
+                    <h4 class="mb-0">${{ stats.avgSalary.toLocaleString() }}</h4>
+                  </div>
+                  <div class="stat-icon">
+                    <i class="bi bi-graph-up"></i>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-3">
+            <div class="card stat-card stat-card-4 h-100">
+              <div class="card-body">
+                <div class="d-flex justify-content-between">
+                  <div>
+                    <h6 class="text-muted">This Month</h6>
+                    <h4 class="mb-0">${{ stats.thisMonth.toLocaleString() }}</h4>
+                  </div>
+                  <div class="stat-icon">
+                    <i class="bi bi-calendar-month"></i>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Loading State -->
+        <div v-if="loading" class="text-center py-5">
+          <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Loading...</span>
+          </div>
+          <p class="mt-3">Loading payroll data...</p>
+        </div>
+
+        <!-- Payroll Table -->
+        <div class="card p-4" v-if="!loading">
+          <div class="table-responsive">
+            <table class="table table-hover">
+              <thead class="table-primary">
+                <tr>
+                  <th>Payroll ID</th>
+                  <th>User ID</th>
+                  <th>Basic Pay</th>
+                  <th>Bonuses</th>
+                  <th>Net Salary</th>
+                  <th>Pay Date</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr v-for="payroll in paginatedPayrolls" :key="payroll['Payroll ID']">
+                  <td>{{ payroll['Payroll ID'] }}</td>
+                  <td>{{ payroll['User ID'] }}</td>
+                  <td>${{ formatCurrency(payroll['Basic Pay']) }}</td>
+                  <td>${{ formatCurrency(payroll['Bonuses']) }}</td>
+                  <td>${{ formatCurrency(payroll['Net Salary']) }}</td>
+                  <td>{{ formatDate(payroll['Pay Date']) }}</td>
+                  <td>
+                    <div class="d-flex gap-2">
+                      <button 
+                        @click="viewPayslip(payroll)" 
+                        class="btn btn-sm btn-outline-primary"
+                        title="View Payslip"
+                      >
+                        <i class="bi bi-eye"></i> View
+                      </button>
+                      <button 
+                        @click="editPayroll(payroll)" 
+                        class="btn btn-sm btn-primary"
+                        title="Edit"
+                      >
+                        <i class="bi bi-pencil"></i> Edit
+                      </button>
+                      <button 
+                        @click="confirmDelete(payroll['Payroll ID'])" 
+                        class="btn btn-sm btn-danger"
+                        title="Delete"
+                      >
+                        <i class="bi bi-trash"></i> Delete
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+                <tr v-if="filteredPayrolls.length === 0">
+                  <td colspan="7" class="text-center py-4 text-muted">
+                    <i class="bi bi-cash-coin fs-4"></i>
+                    <p class="mt-2 mb-0">No payroll records found</p>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <!-- Pagination -->
+          <nav v-if="totalPages > 1" class="mt-4">
+            <ul class="pagination justify-content-center">
+              <li class="page-item" :class="{ disabled: currentPage === 1 }">
+                <button class="page-link" @click="prevPage" :disabled="currentPage === 1">
+                  &laquo;
+                </button>
+              </li>
+              <li 
+                v-for="page in totalPages" 
+                :key="page" 
+                class="page-item" 
+                :class="{ active: currentPage === page }"
+              >
+                <button class="page-link" @click="goToPage(page)">{{ page }}</button>
+              </li>
+              <li class="page-item" :class="{ disabled: currentPage === totalPages }">
+                <button class="page-link" @click="nextPage" :disabled="currentPage === totalPages">
+                  &raquo;
+                </button>
+              </li>
+            </ul>
+          </nav>
+        </div>
+
+        <!-- Error Message -->
+        <div v-if="error" class="alert alert-danger mt-3">
+          <i class="bi bi-exclamation-triangle me-2"></i> {{ error }}
+        </div>
+
+        <!-- Payroll Form Modal -->
+        <AppPayrollForm
+          :visible="showForm"
+          :payroll="selectedPayroll"
+          :mode="formMode"
+          @save="handleSave"
+          @close="closeForm"
+        />
+
+        <!-- Payslip View Modal -->
+        <div v-if="showPayslipModal" class="modal fade show" style="display: block; background-color: rgba(0,0,0,0.5)">
+          <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5 class="modal-title">Payslip for User {{ currentPayslip['User ID'] }}</h5>
+                <button type="button" class="btn-close" @click="closePayslipModal"></button>
+              </div>
+              <div class="modal-body">
+                <p><strong>Payroll ID:</strong> {{ currentPayslip['Payroll ID'] }}</p>
+                <p><strong>Payment Date:</strong> {{ formatDate(currentPayslip['Pay Date']) }}</p>
+                <hr>
+                <p><strong>Basic Pay:</strong> ${{ formatCurrency(currentPayslip['Basic Pay']) }}</p>
+                <p><strong>Bonuses:</strong> ${{ formatCurrency(currentPayslip['Bonuses']) }}</p>
+                <hr>
+                <p class="fw-bold">Net Salary: ${{ formatCurrency(currentPayslip['Net Salary']) }}</p>
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" @click="closePayslipModal">
+                  Close
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Delete Confirmation Modal -->
+        <div v-if="showDeleteModal" class="modal fade show" style="display: block; background-color: rgba(0,0,0,0.5)">
+          <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5 class="modal-title">Confirm Deletion</h5>
+                <button type="button" class="btn-close" @click="closeDeleteModal"></button>
+              </div>
+              <div class="modal-body">
+                <p>Are you sure you want to delete this payroll record? This action cannot be undone.</p>
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" @click="closeDeleteModal">
+                  Cancel
+                </button>
+                <button type="button" class="btn btn-danger" @click="deletePayroll">
+                  Delete
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
-
-      <!-- Pagination -->
-      <nav v-if="totalPages > 1" class="mt-4">
-        <ul class="pagination justify-content-center">
-          <li class="page-item" :class="{ disabled: currentPage === 1 }">
-            <button class="page-link" @click="prevPage" :disabled="currentPage === 1">
-              &laquo;
-            </button>
-          </li>
-          <li 
-            v-for="page in totalPages" 
-            :key="page" 
-            class="page-item" 
-            :class="{ active: currentPage === page }"
-          >
-            <button class="page-link" @click="goToPage(page)">{{ page }}</button>
-          </li>
-          <li class="page-item" :class="{ disabled: currentPage === totalPages }">
-            <button class="page-link" @click="nextPage" :disabled="currentPage === totalPages">
-              &raquo;
-            </button>
-          </li>
-        </ul>
-      </nav>
-    </div>
-
-    <!-- Payroll Form Modal -->
-    <AppPayrollForm
-      v-if="showForm"
-      :employee="selectedPayroll"
-      :mode="formMode"
-      @save="savePayroll"
-      @close="closeForm"
-      @error="showError"
-    />
-
-  
-  </div>
+    </template>
+  </Layout>
 </template>
 
 <script>
+import Layout from '@/components/Layout.vue';
 import AppPayrollForm from "./AppPayrollForm.vue";
-
+import { mapState, mapActions } from 'vuex';
 
 export default {
-  components: { AppPayrollForm},
+  components: {
+    Layout,
+    AppPayrollForm
+  },
   data() {
+    const currentYear = new Date().getFullYear();
     return {
-      payrolls: [
-        { 
-          id: 1, 
-          name: "John Doe", 
-          department: "IT",
-          basic: 5000, 
-          bonus: 500, 
-          deduction: 200,
-          tax: 300,
-          allowance: 200,
-          overtime: 150,
-          period: "Monthly",
-          paymentDate: "2023-05-15",
-          status: "Paid"
-        },
-        { 
-          id: 2, 
-          name: "Jane Smith", 
-          department: "HR",
-          basic: 6000, 
-          bonus: 700, 
-          deduction: 300,
-          tax: 450,
-          allowance: 300,
-          overtime: 200,
-          period: "Monthly",
-          paymentDate: "2023-05-15",
-          status: "Paid"
-        },
-      ],
-      selectedPayroll: null,
-      showForm: false,
-      formMode: "add",
+      loading: false,
+      error: null,
       searchQuery: '',
-      periodFilter: 'all',
       monthFilter: 'all',
-      months: [
-        "January", "February", "March", "April", "May", "June",
-        "July", "August", "September", "October", "November", "December"
-      ],
+      yearFilter: 'all',
+      months: ['January', 'February', 'March', 'April', 'May', 'June', 
+               'July', 'August', 'September', 'October', 'November', 'December'],
+      years: Array.from({length: 10}, (_, i) => currentYear - i),
       currentPage: 1,
-      perPage: 10,
-      showToast: false,
-      toastMessage: '',
-      toastType: 'success',
+      itemsPerPage: 10,
+      showForm: false,
+      formMode: 'add',
+      selectedPayroll: null,
+      showDeleteModal: false,
+      payrollToDelete: null,
+      showPayslipModal: false,
+      currentPayslip: null,
       stats: {
         totalPayrolls: 0,
         totalAmount: 0,
@@ -294,167 +318,213 @@ export default {
     };
   },
   computed: {
+    ...mapState('payroll', ['payrolls', 'isLoading']),
+    
     filteredPayrolls() {
-      let filtered = this.payrolls;
+      let filtered = this.payrolls || [];
       
-      // Apply search filter
       if (this.searchQuery) {
         const query = this.searchQuery.toLowerCase();
         filtered = filtered.filter(p => 
-          p.name.toLowerCase().includes(query) ||
-          p.department.toLowerCase().includes(query)
+          String(p['User ID']).toLowerCase().includes(query)
         );
       }
       
-      // Apply period filter
-      if (this.periodFilter !== 'all') {
-        filtered = filtered.filter(p => p.period === this.periodFilter);
-      }
-      
-      // Apply month filter
       if (this.monthFilter !== 'all') {
         filtered = filtered.filter(p => {
-          const date = new Date(p.paymentDate);
+          const date = new Date(p['Pay Date']);
           return date.getMonth() + 1 === parseInt(this.monthFilter);
         });
       }
       
-      // Update stats
-      this.updateStats(filtered);
+      if (this.yearFilter !== 'all') {
+        filtered = filtered.filter(p => {
+          const date = new Date(p['Pay Date']);
+          return date.getFullYear() === parseInt(this.yearFilter);
+        });
+      }
       
-      // Pagination
-      const start = (this.currentPage - 1) * this.perPage;
-      const end = this.currentPage * this.perPage;
-      
-      return filtered.slice(start, end);
+      return filtered;
     },
+    
     totalPages() {
-      let filtered = this.payrolls;
-      
-      if (this.searchQuery) {
-        const query = this.searchQuery.toLowerCase();
-        filtered = filtered.filter(p => 
-          p.name.toLowerCase().includes(query) ||
-          p.department.toLowerCase().includes(query)
-        );
-      }
-      
-      if (this.periodFilter !== 'all') {
-        filtered = filtered.filter(p => p.period === this.periodFilter);
-      }
-      
-      if (this.monthFilter !== 'all') {
-        filtered = filtered.filter(p => {
-          const date = new Date(p.paymentDate);
-          return date.getMonth() + 1 === parseInt(this.monthFilter);
-        });
-      }
-      
-      return Math.ceil(filtered.length / this.perPage);
+      return Math.ceil(this.filteredPayrolls.length / this.itemsPerPage);
+    },
+    
+    paginatedPayrolls() {
+      const start = (this.currentPage - 1) * this.itemsPerPage;
+      const end = start + this.itemsPerPage;
+      return this.filteredPayrolls.slice(start, end);
     }
   },
   methods: {
-    addPayroll() {
-      this.formMode = "add";
-      this.selectedPayroll = { 
-        name: "", 
-        basic: 0, 
-        bonus: 0, 
-        deduction: 0,
-        tax: 0,
-        allowance: 0,
-        overtime: 0,
-        period: "Monthly",
-        paymentDate: new Date().toISOString().split('T')[0],
-        status: "Pending"
-      };
-      this.showForm = true;
-    },
-    editPayroll(payroll) {
-      this.formMode = "edit";
-      this.selectedPayroll = { ...payroll };
-      this.showForm = true;
-    },
-    viewPayslip(payroll) {
-      // In a real app, this would open a payslip view or PDF
-      alert(`Viewing payslip for ${payroll.name}`);
-    },
-    savePayroll(data) {
-      if (this.formMode === "add") {
-        data.id = Date.now();
-        data.status = "Pending";
-        this.payrolls.unshift(data);
-        this.showNotification('Payroll added successfully');
-      } else {
-        const index = this.payrolls.findIndex(p => p.id === data.id);
-        if (index !== -1) {
-          this.payrolls.splice(index, 1, data);
-          this.showNotification('Payroll updated successfully');
-        }
+    ...mapActions('payroll', ['fetchPayrolls', 'createPayroll', 'updatePayroll', 'deletePayroll']),
+    
+    async loadPayrolls() {
+      this.loading = true;
+      this.error = null;
+      try {
+        await this.fetchPayrolls();
+        this.calculateStats();
+      } catch (error) {
+        // this.error = error.message || "Failed to load payrolls";
+        console.error(error);
+      } finally {
+        this.loading = false;
       }
-      this.closeForm();
     },
-    closeForm() {
-      this.showForm = false;
-      this.selectedPayroll = null;
-    },
-    showError(message) {
-      this.showNotification(message, 'error');
-    },
-    showNotification(message, type = 'success') {
-      this.toastMessage = message;
-      this.toastType = type;
-      this.showToast = true;
-    },
-    calculateNetPay(payroll) {
-      return payroll.basic + payroll.bonus + payroll.allowance + payroll.overtime - payroll.deduction - payroll.tax;
-    },
-    formatDate(dateStr) {
-      return new Date(dateStr).toLocaleDateString();
-    },
-    getInitials(name) {
-      return name.split(' ').map(n => n[0]).join('').toUpperCase();
-    },
-    updateStats(payrolls) {
-      this.stats.totalPayrolls = payrolls.length;
-      
+    
+    calculateStats() {
       const currentMonth = new Date().getMonth() + 1;
       const currentYear = new Date().getFullYear();
       
-      this.stats.totalAmount = payrolls.reduce((sum, p) => sum + this.calculateNetPay(p), 0);
-      this.stats.avgSalary = payrolls.length > 0 
-        ? (this.stats.totalAmount / payrolls.length).toFixed(2)
-        : 0;
+      const payrollsWithNumbers = this.payrolls.map(p => ({
+        ...p,
+        netSalary: parseFloat(p['Net Salary']) || 0
+      }));
       
-      this.stats.thisMonth = payrolls
-        .filter(p => {
-          const date = new Date(p.paymentDate);
-          return date.getMonth() + 1 === currentMonth && date.getFullYear() === currentYear;
-        })
-        .reduce((sum, p) => sum + this.calculateNetPay(p), 0);
+      this.stats = {
+        totalPayrolls: payrollsWithNumbers.length,
+        totalAmount: payrollsWithNumbers.reduce((sum, p) => sum + p.netSalary, 0),
+        avgSalary: payrollsWithNumbers.reduce((sum, p) => sum + p.netSalary, 0) / 
+                  (payrollsWithNumbers.length || 1),
+        thisMonth: payrollsWithNumbers
+          .filter(p => {
+            const date = new Date(p['Pay Date']);
+            return date.getMonth() + 1 === currentMonth && 
+                   date.getFullYear() === currentYear;
+          })
+          .reduce((sum, p) => sum + p.netSalary, 0)
+      };
     },
+    
+    formatCurrency(value) {
+      return parseFloat(value || 0).toLocaleString('en-US', {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+      });
+    },
+    
+    formatDate(dateString) {
+      if (!dateString) return 'N/A';
+      const options = { year: 'numeric', month: 'short', day: 'numeric' };
+      return new Date(dateString).toLocaleDateString(undefined, options);
+    },
+    
+    viewPayslip(payroll) {
+      this.currentPayslip = payroll;
+      this.showPayslipModal = true;
+      document.body.classList.add('modal-open');
+    },
+    
+    closePayslipModal() {
+      this.showPayslipModal = false;
+      document.body.classList.remove('modal-open');
+    },
+    
+    editPayroll(payroll) {
+      this.selectedPayroll = { ...payroll };
+      this.formMode = 'edit';
+      this.showForm = true;
+    },
+    
+    addPayroll() {
+      this.selectedPayroll = {
+        'User ID': '',
+        'Basic Pay': '',
+        'Bonuses': '',
+        'Pay Date': new Date().toISOString().split('T')[0]
+      };
+      this.formMode = 'add';
+      this.showForm = true;
+    },
+    
+    async handleSave(payrollData) {
+      try {
+        this.loading = true;
+        
+        if (this.formMode === 'add') {
+          await this.createPayroll(payrollData);
+          this.$toast.success('Payroll created successfully');
+        } else {
+          // Ensure we include the Payroll ID for updates
+          const updateData = {
+            'Payroll ID': this.selectedPayroll['Payroll ID'],
+            ...payrollData
+          };
+          await this.updatePayroll(updateData);
+          this.$toast.success('Payroll updated successfully');
+        }
+        
+        this.showForm = false;
+        await this.loadPayrolls();
+      } catch (error) {
+        console.error('Save error:', error);
+        this.$toast.error(error.message || 'Failed to save payroll');
+        await this.loadPayrolls(); // Reload even on error
+      } finally {
+        this.loading = false;
+      }
+    },
+    
+    closeForm() {
+      this.showForm = false;
+    },
+    
+    confirmDelete(id) {
+      this.payrollToDelete = id;
+      this.showDeleteModal = true;
+      document.body.classList.add('modal-open');
+    },
+    
+    closeDeleteModal() {
+      this.showDeleteModal = false;
+      document.body.classList.remove('modal-open');
+    },
+    
+    async deletePayroll() {
+      if (!this.payrollToDelete) return;
+      
+      try {
+        this.loading = true;
+        await this.$store.dispatch('payroll/deletePayroll', this.payrollToDelete);
+        this.closeDeleteModal();
+        this.$toast.success('Payroll deleted successfully');
+      } catch (error) {
+        console.error('Delete error:', error);
+        this.$toast.error(error.message || 'Failed to delete payroll');
+      } finally {
+        this.loading = false;
+        await this.loadPayrolls(); // Always reload after delete
+      }
+    },
+    
     resetFilters() {
       this.searchQuery = '';
-      this.periodFilter = 'all';
       this.monthFilter = 'all';
+      this.yearFilter = 'all';
       this.currentPage = 1;
     },
+    
     prevPage() {
       if (this.currentPage > 1) this.currentPage--;
     },
+    
     nextPage() {
       if (this.currentPage < this.totalPages) this.currentPage++;
     },
+    
     goToPage(page) {
       this.currentPage = page;
     },
+    
     exportToExcel() {
-      // In a real app, this would call an API endpoint to generate Excel
-      alert("Exporting payroll data to Excel...");
+      console.log("Exporting to Excel...");
+      this.$toast.info('Export to Excel functionality would be implemented here');
     }
   },
   created() {
-    this.updateStats(this.payrolls);
+    this.loadPayrolls();
   }
 };
 </script>
@@ -497,29 +567,12 @@ export default {
   opacity: 0.7;
 }
 
-.avatar {
-  width: 36px;
-  height: 36px;
-  border-radius: 50%;
-  background-color: #0d6efd;
-  color: white;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: bold;
-}
-
 .table th {
   white-space: nowrap;
 }
 
 .table-hover tbody tr:hover {
   background-color: rgba(13, 110, 253, 0.05);
-}
-
-.badge {
-  padding: 0.5em 0.75em;
-  font-weight: 500;
 }
 
 .btn-success {
@@ -562,13 +615,14 @@ export default {
   color: white;
 }
 
-.bg-success {
-  background-color: #198754 !important;
+.btn-danger {
+  background-color: #dc3545;
+  border-color: #dc3545;
 }
 
-.bg-warning {
-  background-color: #ffc107 !important;
-  color: #212529;
+.btn-danger:hover {
+  background-color: #bb2d3b;
+  border-color: #b02a37;
 }
 
 .text-primary {
@@ -607,5 +661,50 @@ export default {
 
 .empty-state i {
   font-size: 2.5rem;
+}
+
+.modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 1050;
+  overflow-y: auto;
+}
+
+.modal-dialog {
+  margin: 1.75rem auto;
+}
+
+.modal-content {
+  border: none;
+  border-radius: 0.5rem;
+  box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+}
+
+.modal-header {
+  border-bottom: 1px solid #dee2e6;
+  padding: 1rem;
+}
+
+.modal-footer {
+  border-top: 1px solid #dee2e6;
+  padding: 1rem;
+}
+
+.modal-body {
+  padding: 1rem;
+}
+
+.btn-close {
+  background: transparent url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='%23000'%3e%3cpath d='M.293.293a1 1 0 011.414 0L8 6.586 14.293.293a1 1 0 111.414 1.414L9.414 8l6.293 6.293a1 1 0 01-1.414 1.414L8 9.414l-6.293 6.293a1 1 0 01-1.414-1.414L6.586 8 .293 1.707a1 1 0 010-1.414z'/%3e%3c/svg%3e") center/1em auto no-repeat;
+  border: 0;
+  opacity: 0.5;
+  padding: 0.5rem;
+}
+
+.btn-close:hover {
+  opacity: 0.75;
 }
 </style>

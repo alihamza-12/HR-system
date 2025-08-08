@@ -140,6 +140,8 @@ export default {
 </script>
 
 <style>
+@import url('@/assets/styles/buttons.css');
+
 #app {
   font-family: Avenir, Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
@@ -189,11 +191,6 @@ export default {
     color: #5369f8 !important;
 }
 
-.btn-theme {
-    background-color: #5369f8;
-    border-color: #5369f8;
-    color: #fff;
-}
 .outer-div{
     /* border: 1px solid black; */
      box-shadow: 0 0 10px 4px rgba(0, 0, 0, 0.5);

@@ -3,7 +3,7 @@ import axios from 'axios'
 import store from '@/store'
 
 const API = axios.create({
-  baseURL: 'http://192.168.11.123:8000/api', 
+  baseURL: 'http://13.61.143.142/api', 
 })
 
 //  Attach token on every request if exists

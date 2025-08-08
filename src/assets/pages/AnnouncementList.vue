@@ -28,6 +28,19 @@ export default {
     announcements: {
       type: Array,
       required: true
+    },
+    loading: {
+      type: Boolean,
+      default: false
+    },
+    error: {
+      type: String,
+      default: null
+    }
+  },
+  computed: {
+    hasAnnouncements() {
+      return this.announcements && this.announcements.length > 0;
     }
   }
 };
